@@ -1,0 +1,3 @@
+.terraform/
+.tfstate echo .tfstate.*
+.terraform.lock.hcl
