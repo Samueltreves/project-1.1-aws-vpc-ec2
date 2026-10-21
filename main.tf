@@ -1,3 +1,6 @@
+
+
+
 terraform {
   required_version = ">= 1.5.0"
   required_providers {
@@ -136,3 +139,72 @@ resource "aws_route_table_association" "private_2" {
   subnet_id      = aws_subnet.private_2.id
   route_table_id = aws_route_table.private.id
 }
+
+
+
+resource "aws_security_group" "web" {
+  name        = "${var.project_name}-web-sg"
+  description = "Security group for public-facing web tier"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description = "Allow inbound HTTP from anywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Allow inbound HTTPS from anywhere"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project_name}-web-sg"
+  }
+}
+
+
+
+
+resource "aws_security_group" "app" {
+  name        = "${var.project_name}-app-sg"
+  description = "Security group for internal application tier"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "Allow inbound HTTP from Web SG only"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web.id]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project_name}-app-sg"
+  }
+}
+
+
+
+
