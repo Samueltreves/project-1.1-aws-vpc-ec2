@@ -39,3 +39,10 @@ variable "availability_zones" {
   type        = list(string)
   default     = ["eu-central-1a", "eu-central-1b"]
 }
+variable "instance_type" {
+  description = "EC2 instance hardware sizing"
+  type        = string
+  default     = "t3.micro"
+}
+
+

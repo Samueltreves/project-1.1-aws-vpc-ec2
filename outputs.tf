@@ -12,3 +12,15 @@ output "private_subnet_ids" {
   description = "IDs of the private subnets"
   value       = [aws_subnet.private_1.id, aws_subnet.private_2.id]
 }
+
+
+
+output "app_server_instance_id" {
+  description = "The Instance ID of the internal app server"
+  value       = aws_instance.app_server.id
+}
+
+
+
+
+
