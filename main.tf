@@ -308,10 +308,11 @@ data "aws_ami" "amazon_linux_2023" {
 
 
 resource "aws_instance" "app_server" {
-  ami                  = data.aws_ami.amazon_linux_2023.id
-  instance_type        = var.instance_type
-  subnet_id            = aws_subnet.private_1.id
-  iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
+  ami                         = data.aws_ami.amazon_linux_2023.id
+  instance_type               = var.instance_type
+  subnet_id                   = aws_subnet.public_1.id
+  associate_public_ip_address = true
+  iam_instance_profile        = aws_iam_instance_profile.ssm_profile.name
 
   vpc_security_group_ids = [aws_security_group.app.id]
 
@@ -324,7 +325,3 @@ resource "aws_instance" "app_server" {
     Name = "${var.project_name}-app-server"
   }
 }
-
-
-
-
