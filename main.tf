@@ -307,6 +307,7 @@ data "aws_ami" "amazon_linux_2023" {
 
 
 
+
 resource "aws_instance" "app_server" {
   ami                         = data.aws_ami.amazon_linux_2023.id
   instance_type               = var.instance_type
@@ -315,6 +316,8 @@ resource "aws_instance" "app_server" {
   iam_instance_profile        = aws_iam_instance_profile.ssm_profile.name
 
   vpc_security_group_ids = [aws_security_group.app.id]
+
+  user_data = file("${path.module}/userdata.sh")
 
   metadata_options {
     http_endpoint = "enabled"
