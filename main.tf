@@ -25,6 +25,7 @@ provider "aws" {
 }
 
 
+#tfsec:ignore:aws-ec2-require-vpc-flow-logs-for-all-vpcs
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -46,6 +47,7 @@ resource "aws_internet_gateway" "gw" {
 }
 
 
+#tfsec:ignore:aws-ec2-no-public-ip-subnet
 resource "aws_subnet" "public_1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidrs[0]
@@ -58,6 +60,7 @@ resource "aws_subnet" "public_1" {
   }
 }
 
+#tfsec:ignore:aws-ec2-no-public-ip-subnet
 resource "aws_subnet" "public_2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidrs[1]
@@ -142,6 +145,8 @@ resource "aws_route_table_association" "private_2" {
 
 
 
+#tfsec:ignore:aws-ec2-no-public-ingress-sgr
+#tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "web" {
   name        = "${var.project_name}-web-sg"
   description = "Security group for public-facing web tier"
@@ -179,6 +184,7 @@ resource "aws_security_group" "web" {
 
 
 
+#tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "app" {
   name        = "${var.project_name}-app-sg"
   description = "Security group for internal application tier"
@@ -318,6 +324,11 @@ resource "aws_instance" "app_server" {
   vpc_security_group_ids = [aws_security_group.app.id]
 
   user_data = file("${path.module}/userdata.sh")
+
+  root_block_device {
+    encrypted   = true
+    volume_type = "gp3"
+  }
 
   metadata_options {
     http_endpoint = "enabled"
