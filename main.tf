@@ -339,3 +339,4 @@ resource "aws_instance" "app_server" {
     Name = "${var.project_name}-app-server"
   }
 }
+# CI pipeline verification test
