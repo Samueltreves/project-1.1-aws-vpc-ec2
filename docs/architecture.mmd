@@ -1,0 +1,32 @@
+flowchart TB
+subgraph AWS_Cloud ["AWS Cloud (eu-central-1 / Frankfurt)"]
+subgraph VPC ["Custom VPC (10.0.0.0/16)"]
+IGW["Internet Gateway"]
+
+        subgraph Public_Subnet ["Public Subnet (10.0.1.0/24)"]
+            RT_Pub["Public Route Table (0.0.0.0/0 -> IGW)"]
+        end
+        
+        subgraph Private_Subnet ["Private Subnet (Isolated / 10.0.10.0/24)"]
+            direction TB
+            SG["Security Group (Ingress: 80 | Egress: All)"]
+            
+            subgraph EC2_Instance ["Hardened EC2 (t3.micro)"]
+                OS["Amazon Linux 2023"]
+                EBS["Encrypted EBS Volume (AES-256)"]
+                IMDS["IMDSv2 Enforced"]
+                Agent["AWS SSM Agent"]
+            end
+        end
+    end
+    
+    SSM_Service["AWS Systems Manager"]
+    IAM_Role["IAM Role (SSM Core)"]
+end
+
+User_Web["End User"] -->|HTTP / 80| SG
+DevOps_Admin["DevOps Engineer"] -->|IAM Session| SSM_Service
+SSM_Service <-->|Encrypted Tunnel| Agent
+IAM_Role -.->|Attach Role| EC2_Instance
+IGW <--> RT_Pub
+
